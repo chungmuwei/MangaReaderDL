@@ -1,6 +1,6 @@
 # MangaReaderDL
 
-A python web scraping script to download manga from [mangareader.to](http://mangareader.to/) using [serenium](), [bs4](), and [request]() libraries.
+A python web scraping script to download manga from [mangareader.to](http://mangareader.to/) using [Selenium](https://selenium-python.readthedocs.io/index.html), [Beautiful Soup](https://www.crummy.com/software/BeautifulSoup/), and [Requests](https://requests.readthedocs.io/en/latest/) libraries.
 
 ## Usage
 
