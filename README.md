@@ -4,6 +4,18 @@ A python web scraping script to download manga from [mangareader.to](http://mang
 
 ## Usage
 
+You can either run the standalone executable packaged by [PyInstaller](https://pypi.org/project/pyinstaller/) or run the script directly.
+
+### Run the standalone executable
+
+1. The executable is located in the `dist` folder. You can run it by
+
+```bash
+./dist/manga-dl <url>
+```
+
+### Run the script directly
+
 1. Activate the virtual environment by
 
     ```bash
