@@ -16,7 +16,7 @@ def main():
 
     # webdriver settings
     options = webdriver.ChromeOptions()
-    # options.add_argument('--headless') # Run Chrome in headless mode
+    options.add_argument('--headless') # Run Chrome in headless mode
     options.add_experimental_option('prefs', {
         "excludeSwitches": ["disable-popup-blocking"]
     })
@@ -32,12 +32,13 @@ def main():
     window_name_ls = driver.window_handles
     driver.switch_to.window(window_name_ls[0])  # switch to the first window (mangareader.to)
 
-    
-    
-    
     ### ORIGINAL METHOD: CANNOT DEAL WITH SHUFFLED IMAGE ###
-    # Get all the links to the manga page images
-    links = scrape.get_all_manga_pages_links(driver.page_source)
+    # Get all the manga page image byte strings
+    base64_image_ls = scrape.get_all_manga_pages_image(driver.page_source)
+
+    save_images(driver, base64_image_ls, dirname= '_'.join(manga_url.split('/')[-3:]))
+
+    '''
     if links is not None:
         print("Use original method to download the manga pages...")
         # Download and save all the images
@@ -56,32 +57,27 @@ def main():
         print("Saving images...")
         save_images(base64_image_ls, dirname= '_'.join(manga_url.split('/')[-3:]))
         print("Done!")
+    '''
 
-def get_base64_image(driver):
+def get_base64_image(driver, page_number: int):
     """
     Get the base64 image of all the canvas tags where the manga page images are stored
     """
 
     # Get the base64 image of all the canvas tags using querySelectorAll and toDataURL
-    image_data_url_ls = driver.execute_script("""
-        const canvasList = document.querySelectorAll('canvas');
-        dataURLList = []
-        for (let i = 0; i < canvasList.length; i++) {
-            const canvas = canvasList[i];
-            const dataURL = canvas.toDataURL('image/png').substring(21);
-            dataURLList.push(dataURL);
-        }
-        return dataURLList;
-    """)
+    image_data_url = driver.execute_script("""
+        const pageNumber = arguments[0];
+        const canvas = document.querySelector(`#vertical-content > div:nth-child(${pageNumber}) > canvas`);
+        dataURL = canvas.toDataURL('image/png').substring(21);
+        return dataURL;
+    """, page_number)
 
-    # Decode the base64 images
-    base64_image_ls = []
-    for image_data_url in image_data_url_ls:
-        base64_image_ls.append(base64.b64decode(image_data_url))
+    # Decode the base64 image
+    base64_image = base64.b64decode(image_data_url)
     
-    return base64_image_ls
+    return base64_image
 
-def save_images(base64_image_ls, dirname=None):
+def save_images(driver, base64_image_ls, dirname=None):
     """
     Create a folder and save the base64 images png files
     """
@@ -96,11 +92,22 @@ def save_images(base64_image_ls, dirname=None):
         if sequence_cnt > 1:
             dirname = dirname.rstrip('_' + str(sequence_cnt - 1))
         dirname = dirname + '_' + str(sequence_cnt)
+        sequence_cnt += 1
     os.makedirs(dirname, exist_ok=False)
     
     # Save all the images
     page_cnt = 1
+    first_none_page = True
     for base64_image in base64_image_ls:
+
+        if base64_image == None:
+
+            if first_none_page:
+                scrape.wait_for_image_to_load(driver)
+                first_none_page = False
+
+            base64_image = get_base64_image(driver, page_cnt)
+
         with open(dirname + '/page'+str(page_cnt) + '.png', 'wb') as f:
             f.write(base64_image) # write the base64 image to a file
         page_cnt += 1

@@ -12,6 +12,7 @@ def get_html(url):
 def click_vertical_reading_mode_button(driver):
     # Get the vertical reading mode button
     button = driver.find_element(By.XPATH, '//*[@id="first-read"]/div[1]/div/div[3]/a[1]')
+    # //*[@id="first-read"]/div[1]/div/div[3]/a[1]
     # Click the button
     button.click()
 
@@ -24,18 +25,35 @@ def get_vertical_content_container(html):
     container = soup.find('div', id='vertical-content')
     return container
     
-def get_all_manga_pages_links(html):
+def get_all_manga_pages_image(html) -> list['bytes']:
+    """
+    :param html: the html of the manga reading page\n
+    :return: a list of byte strings representing manga page images\n
+
+    Find all div tags with class "iv-card". If the manga page image is not shuffled, 
+    the link to the image is stored in the "data-url" attribute. So the byte string of the image 
+    can be obtained by sending a GET request to the link. If the manga page image is shuffled, 
+    just append None to the list and use alternative method the obtained it later.
+    """
+
     container = get_vertical_content_container(html)
-    pages = container.find_all('div')
-    links = []
+    pages = container.find_all(name='div', attrs={'class': 'iv-card'})
+    base64_image_ls = []
+    # Iterate through all the pages
     for page in pages:
+        # Append None to the list if the page is shuffled
+        if 'shuffled' in page['class']:
+            base64_image_ls.append(None)
+            continue
+
+        # Get the link to the image
         link = page.get('data-url')
+        # Append the link to the list if it is not None
         if link is not None:
-            if 'shuffled' in page['class']: 
-                return None
-            else:
-                links.append(link)
-    return links
+            base64_image = requests.get(link).content # type: bytes
+            base64_image_ls.append(base64_image)
+
+    return base64_image_ls
 
 def wait_for_image_to_load(driver):
     time.sleep(1)   #TODO: Find a better way to wait for the page to load
@@ -53,7 +71,7 @@ def wait_for_image_to_load(driver):
         time.sleep(0.01)
         # if current_height % 1000 == 0:
         #     print("{}-th iteration current_height: {}, total_height: {}".format(current_height//interval, current_height, total_height))
-    time.sleep(1)
+    time.sleep(total_height/20000)
 
 
 def download_manga_pages(links, dirname=None):
