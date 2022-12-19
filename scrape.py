@@ -25,7 +25,7 @@ def get_vertical_content_container(html):
     container = soup.find('div', id='vertical-content')
     return container
     
-def get_all_manga_pages_image(html) -> list['bytes']:
+def get_all_manga_pages_image(html):
     """
     :param html: the html of the manga reading page\n
     :return: a list of byte strings representing manga page images\n
@@ -39,11 +39,14 @@ def get_all_manga_pages_image(html) -> list['bytes']:
     container = get_vertical_content_container(html)
     pages = container.find_all(name='div', attrs={'class': 'iv-card'})
     base64_image_ls = []
+    normal_image_count = 0
+    shuffled_image_count = 0
     # Iterate through all the pages
     for page in pages:
         # Append None to the list if the page is shuffled
         if 'shuffled' in page['class']:
             base64_image_ls.append(None)
+            shuffled_image_count += 1
             continue
 
         # Get the link to the image
@@ -52,8 +55,9 @@ def get_all_manga_pages_image(html) -> list['bytes']:
         if link is not None:
             base64_image = requests.get(link).content # type: bytes
             base64_image_ls.append(base64_image)
+            normal_image_count += 1
 
-    return base64_image_ls
+    return base64_image_ls, normal_image_count, shuffled_image_count
 
 def wait_for_image_to_load(driver):
     time.sleep(1)   #TODO: Find a better way to wait for the page to load
@@ -69,9 +73,8 @@ def wait_for_image_to_load(driver):
         total_height = int(driver.execute_script("return document.body.scrollHeight"))
         current_height += interval
         time.sleep(0.01)
-        # if current_height % 1000 == 0:
-        #     print("{}-th iteration current_height: {}, total_height: {}".format(current_height//interval, current_height, total_height))
-    time.sleep(total_height/20000)
+        print("\rScrolling down to load images: current height: {}, total height: {}".format(current_height, total_height), end='')
+    time.sleep(total_height/50000)
 
 
 def download_manga_pages(links, dirname=None):

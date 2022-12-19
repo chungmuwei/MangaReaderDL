@@ -23,9 +23,10 @@ def main():
     # Create a new instance of the Chrome driver
     driver = webdriver.Chrome(options=options)
     # Load MangaReader.to page
-    print("Loading MangaReader.to website...")
+    print("1. Loading MangaReader.to website...")
     driver.get(manga_url)
-    
+    print("Done loading✅\n")
+
     # Click the vertical button to select vertical reading mode
     scrape.click_vertical_reading_mode_button(driver)
     time.sleep(1)
@@ -34,10 +35,15 @@ def main():
 
     ### ORIGINAL METHOD: CANNOT DEAL WITH SHUFFLED IMAGE ###
     # Get all the manga page image byte strings
-    base64_image_ls = scrape.get_all_manga_pages_image(driver.page_source)
-
-    save_images(driver, base64_image_ls, dirname= '_'.join(manga_url.split('/')[-3:]))
-
+    print("2. Scraping normal manga page images...")
+    base64_image_ls, normal_image_count, shuffled_image_count = scrape.get_all_manga_pages_image(driver.page_source)
+    print(f"Total pages found: {normal_image_count + shuffled_image_count}")
+    print(f"Normal pages found: {normal_image_count}")
+    print(f"Shuffled pages found: {shuffled_image_count}")
+    print("Done scraping normal pages✅\n")
+    print("3. Scraping shuffled manga page image and save image...")
+    save_images(driver, base64_image_ls, total_page=normal_image_count+shuffled_image_count, dirname= '_'.join(manga_url.split('/')[-3:]))
+    print("Done saving images✅\n")
     '''
     if links is not None:
         print("Use original method to download the manga pages...")
@@ -77,7 +83,7 @@ def get_base64_image(driver, page_number: int):
     
     return base64_image
 
-def save_images(driver, base64_image_ls, dirname=None):
+def save_images(driver, base64_image_ls, total_page, dirname=None):
     """
     Create a folder and save the base64 images png files
     """
@@ -94,7 +100,7 @@ def save_images(driver, base64_image_ls, dirname=None):
         dirname = dirname + '_' + str(sequence_cnt)
         sequence_cnt += 1
     os.makedirs(dirname, exist_ok=False)
-    
+    print(f"Created directory: {dirname} to save the manga images")
     # Save all the images
     page_cnt = 1
     first_none_page = True
@@ -111,6 +117,7 @@ def save_images(driver, base64_image_ls, dirname=None):
         with open(dirname + '/page'+str(page_cnt) + '.png', 'wb') as f:
             f.write(base64_image) # write the base64 image to a file
         page_cnt += 1
+        print("\rSaving images: {0} pages saved in {1} directory".format(page_cnt, dirname), end='')
 
 if __name__ == '__main__':
     main()
