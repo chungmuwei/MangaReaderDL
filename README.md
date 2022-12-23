@@ -8,18 +8,22 @@ You can either run the standalone executable packaged by [PyInstaller](https://p
 
 ### Run the standalone executable
 
-1. The executable is located in the `dist` folder. You can run it by
+>  ⚠️ Notice: It is only compatible with **Mac OS X**. The 
+> windows and Linux version will be released soon.
+
+1. The executable is located in the `dist` folder. You can run it by from the project root directory.
 
 ```bash
 ./dist/manga-dl <url>
 ```
+or double click on the executable file in Finder.
 
 ### Run the script directly
 
 1. Activate the virtual environment by
 
     ```bash
-    source MRDL-venv/bin/activate
+    source venv/bin/activate
     ```
     
     then install the dependencies by
@@ -41,4 +45,6 @@ You can either run the standalone executable packaged by [PyInstaller](https://p
 
 1.  The script uses [Selenium](https://pypi.org/project/selenium/) instantiate a **Chrome webdriver** to open the manga page in a headless browser (run in background).
 2.  It is required to **select the reading mode** before reading manga for the first read. There are two options, **Vertical Follow** and **Horizontal Follow**. For my implementation, the webdriver will then find **Vertical Follow** button by its XPATH and **click** it in order to display manga image.
-3. TBC
+3. Most images except those belonged to newly released chapters are located in `canvas` tag which has a url in the `data-url` attribute linking to a **shuffled** image. They are dynamically restored and loaded by JavaScript. Below is a shuffled image of the [Attack on Titan](https://en.wikipedia.org/wiki/Attack_on_Titan) Manga Volume 1 cover:
+
+<img align="center" src="https://c-1.mreadercdn.com/_v2/0/0dcb8f9eaacfd940603bd75c7c152919c72e45517dcfb1087df215e3be94206cfdf45f64815888ea0749af4c0ae5636fabea0abab8c2e938ab3ad7367e9bfa52/52/f3/52f3b6d9ac0123042cebb6fd7839fda6/52f3b6d9ac0123042cebb6fd7839fda6_1900.jpeg?t=515363393022bbd440b0b7d9918f291a&ttl=1908547557" height=300 />
