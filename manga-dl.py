@@ -46,9 +46,10 @@ def main():
     window_name_ls = driver.window_handles
     driver.switch_to.window(window_name_ls[0])  # switch to the first window (mangareader.to)
 
-    ### ORIGINAL METHOD: CANNOT DEAL WITH SHUFFLED IMAGE ###
     # Get all the manga page image byte strings
     print("2. Scraping normal manga page images...")
+    ### ORIGINAL METHOD: CANNOT DEAL WITH SHUFFLED IMAGE ###
+    # Scrape normal images that is not shuffled
     base64_image_ls, normal_image_count, shuffled_image_count = scrape.get_all_manga_pages_image(driver.page_source)
     print(f"Total pages found: {normal_image_count + shuffled_image_count}")
     print(f"Normal pages found: {normal_image_count}")
@@ -60,7 +61,7 @@ def main():
 
 def get_base64_image(driver, page_number: int):
     """
-    Get the base64 image of all the canvas tags where the manga page images are stored
+    Get the base64 image from all the canvas tags where the shuffled manga page images are stored
     """
 
     # Get the base64 image of all the canvas tags using querySelectorAll and toDataURL
