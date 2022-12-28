@@ -4,12 +4,16 @@ import base64
 import os
 import time
 import scrape
-from sys import argv
+import args
 from selenium import webdriver
 import selenium.common.exceptions as selexcept
 
 def main():
-    
+    # parse arguments
+    arguments = args.get_args()
+    manga_url = arguments.url
+    dirname = arguments.dir
+
     # webdriver settings
     options = webdriver.ChromeOptions()
     options.add_argument('--headless') # Run Chrome in headless mode
@@ -23,12 +27,16 @@ def main():
     while not valid_url:
         try:
             # Get the manga url from stdin
-            manga_url = input("1.Paste the url of the manga chapter/volume from MangaReader website: \n")
+            if manga_url is None:
+                manga_url = input("1. Paste the url of the manga chapter/volume from MangaReader website: \n")
+            else:
+                print("1. Loading {} ...".format(manga_url))
             driver.get(manga_url)
             if not manga_url.split("//")[1].startswith("mangareader.to"):
                 print("\nThis url is not in the mangareader.to domain \n")
         except (selexcept.InvalidArgumentException, selexcept.WebDriverException):
             print("\nInvalid url, please try again ⛔️\n")
+            manga_url = None
             continue
             
 
@@ -37,6 +45,7 @@ def main():
             scrape.click_vertical_reading_mode_button(driver)
         except (selexcept.NoSuchElementException, AttributeError):
             print("\nPage not found on MangaReader website, please try again ⛔️\n")
+            manga_url = None
             continue
         
         valid_url = True
@@ -56,7 +65,7 @@ def main():
     print(f"Shuffled pages found: {shuffled_image_count}")
     print("Done scraping normal pages ✅\n")
     print("3. Scraping shuffled manga page image and save image...")
-    save_images(driver, base64_image_ls, total_page=normal_image_count+shuffled_image_count, dirname= '_'.join(manga_url.split('/')[-3:]))
+    save_images(driver, base64_image_ls, total_page=normal_image_count+shuffled_image_count, dirname= dirname+'/'+'_'.join(manga_url.split('/')[-3:]))
     print("\nDone saving images ✅\n")
 
 def get_base64_image(driver, page_number: int):
@@ -110,8 +119,8 @@ def save_images(driver, base64_image_ls, total_page, dirname=None):
 
         with open(dirname + '/page'+str(page_cnt) + '.png', 'wb') as f:
             f.write(base64_image) # write the base64 image to a file
+        print("\rSaving images: {0}/{1} pages saved in {2} directory".format(page_cnt, total_page,  dirname), end='')
         page_cnt += 1
-        print("\rSaving images: {0} pages saved in {1} directory".format(page_cnt, dirname), end='')
 
 if __name__ == '__main__':
     main()

@@ -73,7 +73,7 @@ def wait_for_image_to_load(driver):
         current_height += interval
         time.sleep(0.01)
         print("\rScrolling down to load images: current height: {}, total height: {}".format(current_height, total_height), end='')
-    time.sleep(total_height/50000)
+    time.sleep(max(3, total_height/50000))
 
 
 def download_manga_pages(links, dirname=None):
