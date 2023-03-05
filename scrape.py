@@ -1,5 +1,6 @@
 import requests
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.action_chains import ActionChains
 from bs4 import BeautifulSoup
 import os
 import time
@@ -9,11 +10,20 @@ def get_html(url):
     return r.text
 
 def click_vertical_reading_mode_button(driver):
-    # Get the vertical reading mode button
-    button = driver.find_element(By.XPATH, '//*[@id="first-read"]/div[1]/div/div[3]/a[1]')
-    # //*[@id="first-read"]/div[1]/div/div[3]/a[1]
+
+    # Get the vertical reading mode button 
+    # FULL XPATH: '//*[@id="first-read"]/div[1]/div/div[3]/a[1]' 
+    # XPATH:      '//*[@id="first-read"]/div[1]/div/div[3]/a[1]'
+    button = driver.find_element(By.XPATH, '/html/body/div[1]/div[4]/div/div[1]/div/div[3]/a[1]')
     # Click the button
-    button.click()
+    # button.click()
+    
+    # 6 March 2023
+    # website seems to have changed, the above code no longer works
+    # need to click the button twice
+    ActionChains(driver).move_to_element(button).click().perform();
+    ActionChains(driver).move_to_element(button).click().perform();
+
 
 def get_vertical_content_container(html):
     """
