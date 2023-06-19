@@ -49,24 +49,20 @@ def main():
             continue
         
         valid_url = True
-        print("\nDone loading website ✅\n")
+        print("\nDone loading the website ✅\n")
     time.sleep(1)
         
     window_name_ls = driver.window_handles
     driver.switch_to.window(window_name_ls[0])  # switch to the first window (mangareader.to)
 
     # Get all the manga page image byte strings
-    print("2. Scraping normal manga page images...")
+    print("2. Downloading manga images...")
     ### ORIGINAL METHOD: CANNOT DEAL WITH SHUFFLED IMAGE ###
     # Scrape normal images that is not shuffled
     base64_image_ls, normal_image_count, shuffled_image_count = scrape.get_all_manga_pages_image(driver.page_source)
-    print(f"Total pages found: {normal_image_count + shuffled_image_count}")
-    print(f"Normal pages found: {normal_image_count}")
-    print(f"Shuffled pages found: {shuffled_image_count}")
-    print("Done scraping normal pages ✅\n")
-    print("3. Scraping shuffled manga page image and save image...")
+    print(f"Found {normal_image_count + shuffled_image_count} pages (normal: {normal_image_count}, shuffled: {shuffled_image_count})")
     save_images(driver, base64_image_ls, total_page=normal_image_count+shuffled_image_count, dirname= dirname+'/'+'_'.join(manga_url.split('/')[-3:]))
-    print("\nDone saving images ✅\n")
+    print("\nFinished ✅\n")
 
 def get_base64_image(driver, page_number: int):
     """
@@ -103,7 +99,7 @@ def save_images(driver, base64_image_ls, total_page, dirname=None):
         dirname = dirname + '_' + str(sequence_cnt)
         sequence_cnt += 1
     os.makedirs(dirname, exist_ok=False)
-    print(f"Created directory: {dirname} to save the manga images")
+    print(f"Created directory: {dirname} to save the manga")
     # Save all the images
     page_cnt = 1
     first_none_page = True
