@@ -3,6 +3,6 @@
 __pycache__
 download/
 chromedriver*
-build/
 dist/
+*.egg-info/
 venv/
