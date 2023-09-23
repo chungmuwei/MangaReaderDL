@@ -1,6 +1,7 @@
 import requests
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.support.ui import WebDriverWait
 from bs4 import BeautifulSoup
 import os
 import time
@@ -10,19 +11,21 @@ def get_html(url):
     return r.text
 
 def click_vertical_reading_mode_button(driver):
+    # Answer cookies consent
+    # Click the button twice to reject all cookies
+    reject_all_button_xpath = "/html/body/div[4]/div/div[2]/div/div[4]/div[2]/div[2]/span/div/span"
+    wait = WebDriverWait(driver, 3)
+    wait.until(lambda driver: driver.find_element(By.XPATH, reject_all_button_xpath).is_displayed())
+    reject_all_button = driver.find_element(By.XPATH, reject_all_button_xpath)
+    ActionChains(driver).move_to_element(reject_all_button).double_click().perform()
 
-    # Get the vertical reading mode button 
-    # FULL XPATH: '//*[@id="first-read"]/div[1]/div/div[3]/a[1]' 
-    # XPATH:      '//*[@id="first-read"]/div[1]/div/div[3]/a[1]'
-    button = driver.find_element(By.XPATH, '/html/body/div[1]/div[4]/div/div[1]/div/div[3]/a[1]')
-    # Click the button
-    # button.click()
-    
-    # 6 March 2023
-    # website seems to have changed, the above code no longer works
-    # need to click the button twice
-    ActionChains(driver).move_to_element(button).click().perform();
-    ActionChains(driver).move_to_element(button).click().perform();
+    ActionChains(driver).pause(2).perform
+   
+    # Click the vertical reading mode button 
+    vertical_reading_mode_button_xpath = '//*[@id="first-read"]/div[1]/div/div[3]/a[1]'
+    wait.until(lambda driver: driver.find_element(By.XPATH, vertical_reading_mode_button_xpath).is_displayed())
+    vertical_reading_mode_button = driver.find_element(By.XPATH, vertical_reading_mode_button_xpath)
+    ActionChains(driver).move_to_element(vertical_reading_mode_button).click().perform()
 
 
 def get_vertical_content_container(html):
