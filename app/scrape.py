@@ -10,23 +10,36 @@ def get_html(url):
     r = requests.get(url)
     return r.text
 
-def click_vertical_reading_mode_button(driver):
+def click_buttons(driver):
+    """
+    Click cookies consent and then click the vertical button to select vertical reading mode
+    """
+
     # Answer cookies consent
     # Click the button twice to reject all cookies
     reject_all_button_xpath = "/html/body/div[4]/div/div[2]/div/div[4]/div[2]/div[2]/span/div/span"
-    wait = WebDriverWait(driver, 10)
-    wait.until(lambda driver: driver.find_element(By.XPATH, reject_all_button_xpath).is_displayed())
-    reject_all_button = driver.find_element(By.XPATH, reject_all_button_xpath)
-    ActionChains(driver).move_to_element(reject_all_button).double_click().perform()
-
-    ActionChains(driver).pause(2).perform
-   
-    # Click the vertical reading mode button 
     vertical_reading_mode_button_xpath = '//*[@id="first-read"]/div[1]/div/div[3]/a[1]'
+
+    reject_all_button = None
+    vertical_reading_mode_button = None
+
+    wait = WebDriverWait(driver, 10)
+
+    wait.until(lambda driver: driver.find_element(By.XPATH, reject_all_button_xpath).is_displayed())
+    while reject_all_button is None:
+        if driver.current_window_handle != driver.window_handles[0]:
+            driver.switch_to.window(driver.window_handles[0])
+        reject_all_button = driver.find_element(By.XPATH, reject_all_button_xpath)
+        ActionChains(driver).pause(0.2).perform()
+    ActionChains(driver).move_to_element(reject_all_button).double_click().perform()
+    
     wait.until(lambda driver: driver.find_element(By.XPATH, vertical_reading_mode_button_xpath).is_displayed())
-    vertical_reading_mode_button = driver.find_element(By.XPATH, vertical_reading_mode_button_xpath)
-    ActionChains(driver).move_to_element(vertical_reading_mode_button).click().perform()
-    ActionChains(driver).pause(2).perform
+    while vertical_reading_mode_button is None:
+        if driver.current_window_handle != driver.window_handles[0]:
+            driver.switch_to.window(driver.window_handles[0])
+        vertical_reading_mode_button = driver.find_element(By.XPATH, vertical_reading_mode_button_xpath)
+        ActionChains(driver).move_to_element(vertical_reading_mode_button).double_click().perform()
+    ActionChains(driver).pause(2).perform()
 
 def get_vertical_content_container(html):
     """

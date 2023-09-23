@@ -1,4 +1,4 @@
-# !/usr/bin/env python3
+# !/usr/local/bin/python3.11
 
 import typer
 from typing_extensions import Annotated, Optional
@@ -53,9 +53,9 @@ def run(url: Annotated[str,
             continue
             
 
-        # Click the vertical button to select vertical reading mode
+        # Click cookies consent and then click the vertical button to select vertical reading mode
         try:
-            scrape.click_vertical_reading_mode_button(driver)
+            scrape.click_buttons(driver)
         except (selexcept.TimeoutException, selexcept.NoSuchElementException):
             # print stack trace
             # traceback.print_exc()
@@ -73,6 +73,8 @@ def run(url: Annotated[str,
     print("2. Downloading manga images...")
     ### ORIGINAL METHOD: CANNOT DEAL WITH SHUFFLED IMAGE ###
     # Scrape normal images that is not shuffled
+    # wait for page to load
+    time.sleep(3)
     base64_image_ls, normal_image_count, shuffled_image_count = scrape.get_all_manga_pages_image(driver.page_source)
     print(f"Found {normal_image_count + shuffled_image_count} pages (normal: {normal_image_count}, shuffled: {shuffled_image_count})")
     save_images(driver, base64_image_ls, total_page=normal_image_count+shuffled_image_count, dirname= path+'/'+'_'.join(url.split('/')[-3:]))
