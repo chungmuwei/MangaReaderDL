@@ -1,51 +1,64 @@
-#!/usr/bin/env python3
+# !/usr/bin/env python3
 
+import typer
+from typing_extensions import Annotated, Optional
 import base64
 import os
 import time
 import scrape
-import args
+
 from selenium import webdriver
 import selenium.common.exceptions as selexcept
 
-def main():
-    # parse arguments
-    arguments = args.get_args()
-    manga_url = arguments.url
-    dirname = arguments.dir
+import traceback
+
+def main(url: Annotated[str, 
+                        typer.Argument(
+                           metavar="✨Manga URL✨",
+                            help="The url of the manga on mangareader.to")], 
+         path: Annotated[Optional[str], 
+                        typer.Argument(
+                            metavar="✨Save Path✨",
+                            help="The path to save the downloaded manga'")] = "."):
+    """
+    Download the manga on mangareader.to website by the url of the manga chapter/volume
+    """
 
     # webdriver settings
     options = webdriver.ChromeOptions()
-    options.add_argument('--headless') # Run Chrome in headless mode
+    # options.add_argument('--headless') # Run Chrome in headless mode
     options.add_experimental_option('prefs', {
         "excludeSwitches": ["disable-popup-blocking"]
     })
     # Create a new instance of the Chrome driver
-    driver = webdriver.Chrome(options=options)
+    driver = webdriver.Chrome()
+    # driver = webdriver.Chrome(options=options)
     # Load MangaReader.to page
     valid_url = False
     while not valid_url:
         try:
             # Get the manga url from stdin
-            if manga_url is None:
-                manga_url = input("1. Paste the url of the manga chapter/volume from MangaReader website: \n")
+            if url is None:
+                url = input("1. Paste the url of the manga chapter/volume from MangaReader website: \n")
             else:
-                print("1. Loading {} ...".format(manga_url))
-            driver.get(manga_url)
-            if not manga_url.split("//")[1].startswith("mangareader.to"):
+                print("1. Loading {} ...".format(url))
+            driver.get(url)
+            if not url.split("//")[1].startswith("mangareader.to"):
                 print("\nThis url is not in the mangareader.to domain \n")
         except (selexcept.InvalidArgumentException, selexcept.WebDriverException):
             print("\nInvalid url, please try again ⛔️\n")
-            manga_url = None
+            url = None
             continue
             
 
         # Click the vertical button to select vertical reading mode
         try:
             scrape.click_vertical_reading_mode_button(driver)
-        except (selexcept.NoSuchElementException, AttributeError):
-            print("\nPage not found on MangaReader website, please try again ⛔️\n")
-            manga_url = None
+        except (selexcept.TimeoutException, selexcept.NoSuchElementException):
+            # print stack trace
+            traceback.print_exc()
+            print("\nPage not found or not a read page, please try again ⛔️\n")
+            url = None
             continue
         
         valid_url = True
@@ -61,7 +74,7 @@ def main():
     # Scrape normal images that is not shuffled
     base64_image_ls, normal_image_count, shuffled_image_count = scrape.get_all_manga_pages_image(driver.page_source)
     print(f"Found {normal_image_count + shuffled_image_count} pages (normal: {normal_image_count}, shuffled: {shuffled_image_count})")
-    save_images(driver, base64_image_ls, total_page=normal_image_count+shuffled_image_count, dirname= dirname+'/'+'_'.join(manga_url.split('/')[-3:]))
+    save_images(driver, base64_image_ls, total_page=normal_image_count+shuffled_image_count, dirname= path+'/'+'_'.join(url.split('/')[-3:]))
     print("\nFinished ✅\n")
 
 def get_base64_image(driver, page_number: int):
@@ -119,4 +132,4 @@ def save_images(driver, base64_image_ls, total_page, dirname=None):
         page_cnt += 1
 
 if __name__ == '__main__':
-    main()
+    typer.run(main)
