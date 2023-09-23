@@ -17,7 +17,7 @@ setup(
     packages=['app'],
     entry_points={
         'console_scripts': [
-            'manga-dl=app.manga_dl:main',
+            'manga-dl=app.manga-dl:main',
         ],
     },
     install_requires=read('requirements.txt').splitlines(),
