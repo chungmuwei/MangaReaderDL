@@ -23,7 +23,9 @@ def main(url: Annotated[str,
     """
     Download the manga on mangareader.to website by the url of the manga chapter/volume
     """
-
+    if not os.path.exists(path):
+        print(f"The path \"{path}\" does not exist")
+        return
     # webdriver settings
     options = webdriver.ChromeOptions()
     # options.add_argument('--headless') # Run Chrome in headless mode

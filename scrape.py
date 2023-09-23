@@ -14,7 +14,7 @@ def click_vertical_reading_mode_button(driver):
     # Answer cookies consent
     # Click the button twice to reject all cookies
     reject_all_button_xpath = "/html/body/div[4]/div/div[2]/div/div[4]/div[2]/div[2]/span/div/span"
-    wait = WebDriverWait(driver, 3)
+    wait = WebDriverWait(driver, 10)
     wait.until(lambda driver: driver.find_element(By.XPATH, reject_all_button_xpath).is_displayed())
     reject_all_button = driver.find_element(By.XPATH, reject_all_button_xpath)
     ActionChains(driver).move_to_element(reject_all_button).double_click().perform()
