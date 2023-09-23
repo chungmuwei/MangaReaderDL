@@ -10,7 +10,7 @@ import scrape
 from selenium import webdriver
 import selenium.common.exceptions as selexcept
 
-import traceback
+# import traceback
 
 def run(url: Annotated[str, 
                         typer.Argument(
@@ -28,13 +28,13 @@ def run(url: Annotated[str,
         return
     # webdriver settings
     options = webdriver.ChromeOptions()
-    # options.add_argument('--headless') # Run Chrome in headless mode
+    options.add_argument('--headless') # Run Chrome in headless mode
     options.add_experimental_option('prefs', {
         "excludeSwitches": ["disable-popup-blocking"]
     })
     # Create a new instance of the Chrome driver
-    driver = webdriver.Chrome()
-    # driver = webdriver.Chrome(options=options)
+    # driver = webdriver.Chrome()
+    driver = webdriver.Chrome(options=options)
     # Load MangaReader.to page
     valid_url = False
     while not valid_url:
@@ -58,14 +58,13 @@ def run(url: Annotated[str,
             scrape.click_vertical_reading_mode_button(driver)
         except (selexcept.TimeoutException, selexcept.NoSuchElementException):
             # print stack trace
-            traceback.print_exc()
+            # traceback.print_exc()
             print("\nPage not found or not a read page, please try again ⛔️\n")
             url = None
             continue
         
         valid_url = True
         print("\nDone loading the website ✅\n")
-    time.sleep(1)
         
     window_name_ls = driver.window_handles
     driver.switch_to.window(window_name_ls[0])  # switch to the first window (mangareader.to)

@@ -26,7 +26,7 @@ def click_vertical_reading_mode_button(driver):
     wait.until(lambda driver: driver.find_element(By.XPATH, vertical_reading_mode_button_xpath).is_displayed())
     vertical_reading_mode_button = driver.find_element(By.XPATH, vertical_reading_mode_button_xpath)
     ActionChains(driver).move_to_element(vertical_reading_mode_button).click().perform()
-
+    ActionChains(driver).pause(2).perform
 
 def get_vertical_content_container(html):
     """
